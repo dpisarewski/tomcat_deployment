@@ -1,1 +1,1 @@
-require "lib/tomcat_deployment/recipe"
+require "tomcat_deployment/recipe"

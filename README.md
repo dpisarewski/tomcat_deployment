@@ -1,26 +1,37 @@
 # TomcatDeployment
 
-TODO: Write a gem description
+Capistrano recipe for Tomcat
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
+```ruby
+group :development do
     gem 'tomcat_deployment'
+end
+```
 
 And then execute:
 
-    $ bundle
+```shell
+bundle
+```
 
 Or install it yourself as:
 
-    $ gem install tomcat_deployment
+```shell
+gem install tomcat_deployment
+```
 
 ## Usage
 
 1. Create 'deploy.rb' file and define application name, server, user, password, tomcat directory and environment in it
 
 ```ruby
+require "bundler/setup"
+require "tomcat_deployment"
+
 set :application, "my_application"
 server "myhost", :web, :app, :db
 set :user, "deploy-user"
