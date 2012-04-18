@@ -114,6 +114,11 @@ Capistrano::Configuration.instance.load do
   # simple interactions with the tomcat server
   #
   namespace :tomcat do
+
+    unless exists? :restart_pause
+      set :restart_pause, 3
+    end
+
     def without_pty
       default_run_options[:pty] = false
       yield
@@ -138,7 +143,7 @@ Capistrano::Configuration.instance.load do
     desc "stop and start tomcat"
     task :restart do
       tomcat.stop
-      sleep 3
+      sleep restart_pause
       tomcat.start
     end
 

@@ -40,6 +40,8 @@ gem install tomcat_deployment
     set :stage, "production"
     ```
 
+    User is 'deploy-user' by default.
+
     Optional you can define you ruby version. jruby-1.6.5 will be used by default.
 
     ```ruby
@@ -66,8 +68,42 @@ gem install tomcat_deployment
     end
     ```
 
+    db.create_db, db.copy_production_to_staging and db.copy_data_from_production work only with MySQL database.
+
 4. If it's the first deployment run `cap <environment> deploy:setup`
 
 5. Run `cap <environment> deploy`
 
 6. If there are new migrations in the release run `cap <environment> deploy:migrations`
+
+### Options
+If you want to backup war file before replacing it with new one add:
+
+```ruby
+set :backup_war_file, true
+```
+
+
+If you want to use database configuration file different from 'database.yml' define:
+
+```ruby
+set :database_config, "your configuration file"
+```
+
+To define tomcat user add:
+
+```ruby
+set :tomcat_user, "your tomcat user"
+```
+
+If you want to kill tomcat process after shutdown add:
+
+```ruby
+set :tomcat_process_name, "your tomcat process name"
+```
+
+To set pause after tomcat shutdown add:
+
+```ruby
+set :restart_pause, 3
+```
