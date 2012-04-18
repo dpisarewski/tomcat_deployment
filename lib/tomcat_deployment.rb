@@ -1,2 +1,5 @@
-require "tomcat_deployment/deployment_utils"
-require "tomcat_deployment/recipe"
+if defined? Capistrano
+  require "tomcat_deployment/deployment_utils"
+  require "tomcat_deployment/recipe"
+end
+
