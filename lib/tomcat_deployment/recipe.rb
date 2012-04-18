@@ -2,7 +2,6 @@ require "capistrano"
 require 'capistrano/ext/multistage'
 require "rvm/capistrano"
 require "bundler/capistrano"
-require "tomcat_deployment/deployment_utils"
 
 unless Capistrano::Configuration.respond_to?(:instance)
   fail "capistrano 2 required"
