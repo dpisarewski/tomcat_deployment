@@ -66,8 +66,8 @@ gem install tomcat_deployment
     end
     ```
 
-4. If it's the first deployment run 'cap <environment> deploy:setup'
+4. If it's the first deployment run `cap <environment> deploy:setup`
 
-5. Run 'cap <environment> deploy'
+5. Run `cap <environment> deploy`
 
-6. If there are new migrations in the release run 'cap <environment> deploy:migrations'
+6. If there are new migrations in the release run `cap <environment> deploy:migrations`
