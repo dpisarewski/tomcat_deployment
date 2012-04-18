@@ -1,15 +1,15 @@
-require "capistrano"
-require 'capistrano/ext/multistage'
-require "rvm/capistrano"
-require "bundler/capistrano"
-
 unless Capistrano::Configuration.respond_to?(:instance)
   fail "capistrano 2 required"
 end
 
-#TODO fail if required variables are missing(application, server, password)
-
 Capistrano::Configuration.instance.load do
+  #TODO fail if required variables are missing(application, server, password)
+
+  require "capistrano"
+  require 'capistrano/ext/multistage'
+  require "rvm/capistrano"
+  require "bundler/capistrano"
+
   set :default_stage, "staging"
 
   #RVM support
