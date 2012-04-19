@@ -8,6 +8,7 @@ Gem::Specification.new do |gem|
   gem.summary       = "Capistrano recipe for deployment to tomcat"
   gem.homepage      = "http://www.arvatosystems-us.com/"
 
+  gem.files         = Dir.glob("lib/**/*")
   gem.name          = "tomcat_deployment"
   gem.require_paths = ["lib"]
   gem.version       = TomcatDeployment::VERSION
