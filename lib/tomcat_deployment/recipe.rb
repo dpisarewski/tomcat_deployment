@@ -264,7 +264,7 @@ Capistrano::Configuration.instance.load do
     end
 
     task :add_github_public_key do |t|
-      run "[[ -n $(grep -q '^github.com' ~/.ssh/known_hosts) ]] || ssh-keyscan github.com >> ~/.ssh/known_hosts"
+      run "[[ -n $(grep '^github.com' ~/.ssh/known_hosts) ]] || ssh-keyscan github.com >> ~/.ssh/known_hosts"
     end
 
     task :install_bundler_requirements do |t|
@@ -305,7 +305,7 @@ Capistrano::Configuration.instance.load do
 
   namespace :software do
     task :install_curl do
-      sudo "bash -c 'type curl >/dev/null 2>&1 || apt-get install curl'"
+      sudo "bash -c 'type curl >/dev/null 2>&1 || type apt-get apt-get >/dev/null 2>&1 && install curl'"
     end
   end
 end
