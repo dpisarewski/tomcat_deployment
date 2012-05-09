@@ -79,10 +79,14 @@ Capistrano::Configuration.instance.load do
   end
   set :use_sudo, false
 
+  before 'rmv:install_rvm' do
+    software.install_curl
+  end
 
   before 'deploy:setup' do
     deploy_user.configure
     tomcat.create_apps_directory
+    gems.add_github_public_key
     gems.install_bundler_requirements
   end
 
@@ -245,6 +249,10 @@ Capistrano::Configuration.instance.load do
       system "cp Gemfile Gemfile.lock #{deploy_from}"
     end
 
+    task :add_github_public_key do |t|
+      run "[[ -n $(grep '^github.com' ~/.ssh/known_hosts) ]] || ssh-keyscan github.com >> ~/.ssh/known_hosts"
+    end
+
     task :install_bundler_requirements do |t|
       run "gem install rubygems-update"
       run "update_rubygems"
@@ -278,6 +286,12 @@ Capistrano::Configuration.instance.load do
         end
       end
       sudo "usermod -g #{tomcat_group} #{user}"
+    end
+  end
+
+  namespace :software do
+    task :install_curl do
+      sudo "type curl >/dev/null 2>&1 || apt-get install curl"
     end
   end
 end
