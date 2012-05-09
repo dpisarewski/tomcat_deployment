@@ -117,6 +117,7 @@ Capistrano::Configuration.instance.load do
 
   #Link current release and remove unnecessary files
   after 'deploy:update_code' do
+    sudo "chmod g+w #{webapps_directory}/#{war}", :as => tomcat_user
     cmd = "ln -sf #{current_release}/#{war} #{webapps_directory}/#{war}"
     puts cmd
     run cmd
