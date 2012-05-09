@@ -309,4 +309,22 @@ Capistrano::Configuration.instance.load do
       sudo "bash -c 'type curl >/dev/null 2>&1 || type apt-get >/dev/null 2>&1 && apt-get install curl'"
     end
   end
+
+  #WORKAROUND FOR CAPISTRANO BUG
+  namespace :deploy do
+    task :cleanup, :except => { :no_release => true } do
+      count = fetch(:keep_releases, 5).to_i
+      local_releases = Capistrano::Configuration::Actions::Inspect.capture("ls -xt #{releases_path}").split.reverse
+      if count >= local_releases.length
+        logger.important "no old releases to clean up"
+      else
+        logger.info "keeping #{count} of #{local_releases.length} deployed releases"
+        directories = (local_releases - local_releases.last(count)).map { |release|
+          File.join(releases_path, release) }.join(" ")
+
+        try_sudo "rm -rf #{directories}"
+      end
+    end
+  end
+
 end
