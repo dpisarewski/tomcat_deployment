@@ -26,7 +26,6 @@ Capistrano::Configuration.instance.load do
   set :bundle_cmd, "jruby -ropenssl -S bundle"
 
   default_run_options[:pty] = true
-  default_run_options[:shell] = '/bin/bash'
   set :ssh_options, {:forward_agent => true}
 
   # DEPLOYMENT SCHEME
@@ -83,6 +82,9 @@ Capistrano::Configuration.instance.load do
   end
   unless exists? :add_github_public_key
     set :add_github_public_key, true
+  end
+  unless exists? :skip_restart
+    set :skip_restart, false
   end
 
   set :use_sudo, false
@@ -187,7 +189,7 @@ Capistrano::Configuration.instance.load do
   namespace :deploy do
     # restart tomcat
     task :restart do
-      tomcat.restart
+      tomcat.restart unless skip_restart
     end
   end
 
