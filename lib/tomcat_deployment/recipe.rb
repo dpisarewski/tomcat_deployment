@@ -249,7 +249,7 @@ Capistrano::Configuration.instance.load do
 
   namespace :warble do
     task :backup_war_file do |t|
-      sudo "test -f #{webapps_directory}/#{war} && cp #{webapps_directory}/#{war} #{webapps_directory}/#{war}.bak || echo > /dev/null", :as => tomcat_user
+      sudo "test -f #{webapps_directory}/#{war} && cp #{webapps_directory}/#{war} #{webapps_directory}/#{war}.bak || true", :as => tomcat_user
     end
   end
 
@@ -262,7 +262,7 @@ Capistrano::Configuration.instance.load do
 
   namespace :deploy_user do
     task :configure do |t|
-      sudo "[ $SHELL != '/bin/bash' ] && chsh -s /bin/bash" do |channel, stream, data|
+      sudo "[ $SHELL != '/bin/bash' ] && chsh -s /bin/bash || true" do |channel, stream, data|
         if data =~ /^Password:/
           logger.info "#{channel[:host]} asked for password"
           channel.send_data password
