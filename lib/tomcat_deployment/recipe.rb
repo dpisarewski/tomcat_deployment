@@ -26,6 +26,7 @@ Capistrano::Configuration.instance.load do
   set :bundle_cmd, "jruby -ropenssl -S bundle"
 
   default_run_options[:pty] = true
+  set :ssh_options, {:forward_agent => true}
 
   # DEPLOYMENT SCHEME
   set :scm, :none
@@ -261,7 +262,12 @@ Capistrano::Configuration.instance.load do
 
   namespace :deploy_user do
     task :configure do |t|
-      run "chsh -s /bin/bash"
+      sudo "[ $SHELL != '/bin/bash' ] && chsh -s /bin/bash" do |channel, stream, data|
+        if data =~ /^Password:/
+          logger.info "#{channel[:host]} asked for password"
+          channel.send_data password
+        end
+      end
       sudo "usermod -g #{tomcat_group} #{user}"
     end
   end
