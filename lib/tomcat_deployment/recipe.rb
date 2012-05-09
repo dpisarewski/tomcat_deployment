@@ -130,17 +130,26 @@ Capistrano::Configuration.instance.load do
       default_run_options[:pty] = pty
     end
 
+    def sudo_without_pty(command, options = {})
+      sudo command, options do |channel, stream, data|
+        if data =~ /^#{Regexp.escape(sudo_prompt)}/
+          logger.info "#{channel[:host]} asked for password"
+          channel.send_data password
+        end
+      end
+    end
+
     desc "start tomcat"
     task :start do
       without_pty do
-        run "echo #{password} | sudo -S -u #{tomcat_user} #{tomcat_home}/bin/startup.sh"
+        sudo_without_pty "#{tomcat_home}/bin/startup.sh", :as => tomcat_user
       end
     end
 
     desc "stop tomcat"
     task :stop do
       without_pty do
-        run "echo #{password} | sudo -S -u #{tomcat_user} #{tomcat_home}/bin/shutdown.sh"
+        sudo_without_pty "#{tomcat_home}/bin/shutdown.sh", :as => tomcat_user
       end
       sudo "pkill -f #{tomcat_process_name}" if exists? :tomcat_process_name
     end
@@ -262,7 +271,7 @@ Capistrano::Configuration.instance.load do
 
   namespace :deploy_user do
     task :configure do |t|
-      sudo "[ $SHELL != '/bin/bash' ] && chsh -s /bin/bash || true" do |channel, stream, data|
+      run "[ $SHELL != '/bin/bash' ] && chsh -s /bin/bash || true" do |channel, stream, data|
         if data =~ /^Password:/
           logger.info "#{channel[:host]} asked for password"
           channel.send_data password
