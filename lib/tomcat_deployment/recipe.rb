@@ -242,13 +242,13 @@ Capistrano::Configuration.instance.load do
     end
 
     task :copy_production_to_staging do |t|
-      password_param = " -p#{db_password}"
+      password_param = " -p#{db_password}" if db_password.present?
       run   "mysql -u #{db_user} #{password_param} -e \"DROP DATABASE IF EXISTS #{database}\" && mysqladmin -u #{db_user} #{password_param} create #{database}"
       run   "mysqldump -u #{db_user} #{password_param} #{db_config["production"]['database']} | mysql -u #{db_user} #{password_param} #{database}"
     end
 
     task :copy_data_from_production do
-      password_param = " -p#{db_password}"
+      password_param = " -p#{db_password}" if db_password.present?
       run "mysqldump -u #{db_user} #{password_param} --no-create-db --no-create-info --ignore-table=schema_migrations #{db_config["production"]['database']} | mysql -u #{db_user} #{password_param} #{database}"
     end
 
@@ -259,7 +259,7 @@ Capistrano::Configuration.instance.load do
 
     task :create_db do |t|
       if exists?(:database_config)
-        password_param = " -p#{db_password}"
+        password_param = " -p#{db_password}" if db_password.present?
         run "mysql -u #{db_user} #{password_param} -e 'SHOW DATABASES' | grep #{database} || mysql -u #{db_user} #{password_param} -e 'CREATE DATABASE #{database}'"
       end
     end
