@@ -26,7 +26,6 @@ Capistrano::Configuration.instance.load do
   set :bundle_cmd, "jruby -ropenssl -S bundle"
 
   default_run_options[:pty] = true
-  set :ssh_options, {:forward_agent => true}
 
   # DEPLOYMENT SCHEME
   set :scm, :none
@@ -305,7 +304,7 @@ Capistrano::Configuration.instance.load do
 
   namespace :software do
     task :install_curl do
-      sudo "bash -c 'type curl >/dev/null 2>&1 || type apt-get apt-get >/dev/null 2>&1 && apt-get install curl'"
+      sudo "bash -c 'type curl >/dev/null 2>&1 || type apt-get >/dev/null 2>&1 && apt-get install curl'"
     end
   end
 end

@@ -2,6 +2,12 @@
 
 Capistrano recipe for Tomcat
 
+## Requirements
+
+1. bash
+2. apt-get (otherwise disable installing curl and install it manually)
+3. user with sudo rights
+
 ## Installation
 
 Add this line to your application's Gemfile:
