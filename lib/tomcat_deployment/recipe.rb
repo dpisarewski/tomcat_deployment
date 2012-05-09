@@ -237,14 +237,19 @@ Capistrano::Configuration.instance.load do
     def database
       db_config[stage]['database']
     end
+    def db_user
+      db_config[stage]['user']
+    end
 
     task :copy_production_to_staging do |t|
-      run   "mysql -u root -p#{db_password} -e \"DROP DATABASE IF EXISTS #{database}\" && mysqladmin -u root -p#{db_password} create #{database}"
-      run   "mysqldump -u root -p#{db_password} #{db_config["production"]['database']} | mysql -u root -p#{db_password} #{database}"
+      password_param = " -p#{db_password}"
+      run   "mysql -u #{db_user} #{password_param} -e \"DROP DATABASE IF EXISTS #{database}\" && mysqladmin -u #{db_user} #{password_param} create #{database}"
+      run   "mysqldump -u #{db_user} #{password_param} #{db_config["production"]['database']} | mysql -u #{db_user} #{password_param} #{database}"
     end
 
     task :copy_data_from_production do
-      run "mysqldump -u root -p#{db_password} --no-create-db --no-create-info --ignore-table=schema_migrations #{db_config["production"]['database']} | mysql -u root -p#{db_password} #{database}"
+      password_param = " -p#{db_password}"
+      run "mysqldump -u #{db_user} #{password_param} --no-create-db --no-create-info --ignore-table=schema_migrations #{db_config["production"]['database']} | mysql -u #{db_user} #{password_param} #{database}"
     end
 
     task :migrate do |t|
@@ -254,7 +259,8 @@ Capistrano::Configuration.instance.load do
 
     task :create_db do |t|
       if exists?(:database_config)
-        run "mysql -u root -p#{db_password} -e 'SHOW DATABASES' | grep vacation_request_#{stage} || mysql -u root -p#{db_password} -e 'CREATE DATABASE vacation_request_#{stage}'"
+        password_param = " -p#{db_password}"
+        run "mysql -u #{db_user} #{password_param} -e 'SHOW DATABASES' | grep #{database} || mysql -u #{db_user} #{password_param} -e 'CREATE DATABASE #{database}'"
       end
     end
   end
