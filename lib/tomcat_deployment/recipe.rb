@@ -71,6 +71,9 @@ Capistrano::Configuration.instance.load do
   unless exists? :tomcat_user
     set :tomcat_user, "tomcat"
   end
+  unless exists? :tomcat_group
+    set :tomcat_group, "tomcat"
+  end
   unless exists? :database_config
     set :database_config, "database.yml"
   end
@@ -78,6 +81,7 @@ Capistrano::Configuration.instance.load do
 
 
   before 'deploy:setup' do
+    deploy_user.configure
     tomcat.create_apps_directory
     gems.install_bundler_requirements
   end
@@ -120,9 +124,10 @@ Capistrano::Configuration.instance.load do
     end
 
     def without_pty
+      pty = default_run_options[:pty]
       default_run_options[:pty] = false
       yield
-      default_run_options[:pty] = true
+      default_run_options[:pty] = pty
     end
 
     desc "start tomcat"
@@ -232,7 +237,8 @@ Capistrano::Configuration.instance.load do
     end
 
     task :install_bundler_requirements do |t|
-      run "gem update --system"
+      run "gem install rubygems-update"
+      run "update_rubygems"
       run "gem install bundler && gem install jruby-openssl"
     end
 
@@ -250,7 +256,14 @@ Capistrano::Configuration.instance.load do
   namespace :tomcat do
     task :create_apps_directory do |t|
       sudo "chmod g+w #{tomcat_home}", :as => tomcat_user
-      run "mkdir -p #{apps_directory}"
+      run "mkdir -p #{apps_directory}", :as => tomcat_user
+    end
+  end
+
+  namespace :deploy_user do
+    task :configure do |t|
+      run "chsh -s /bin/bash"
+      sudo "usermod -g #{tomcat_group} #{user}"
     end
   end
 end
