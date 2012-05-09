@@ -229,7 +229,7 @@ Capistrano::Configuration.instance.load do
 
   namespace :db do
     def db_config
-      YAML::load(ERB.new(File.read("config/#{database_config}")).result)
+      YAML::load(ERB.new(File.read("config/#{database_config}").concat("\n")).result)
     end
     def db_password
       db_config[stage]['password']
