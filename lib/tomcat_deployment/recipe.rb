@@ -26,7 +26,6 @@ Capistrano::Configuration.instance.load do
   set :bundle_cmd, "jruby -ropenssl -S bundle"
 
   default_run_options[:pty] = true
-  default_run_options[:shell] = false
 
   # DEPLOYMENT SCHEME
   set :scm, :none
