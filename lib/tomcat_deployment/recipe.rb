@@ -26,6 +26,7 @@ Capistrano::Configuration.instance.load do
   set :bundle_cmd, "jruby -ropenssl -S bundle"
 
   default_run_options[:pty] = true
+  default_run_options[:shell] = '/bin/bash'
   set :ssh_options, {:forward_agent => true}
 
   # DEPLOYMENT SCHEME
@@ -77,16 +78,23 @@ Capistrano::Configuration.instance.load do
   unless exists? :database_config
     set :database_config, "database.yml"
   end
+  unless exists? :install_software_requirements
+    set :install_software_requirements, true
+  end
+  unless exists? :add_github_public_key
+    set :add_github_public_key, true
+  end
+
   set :use_sudo, false
 
-  before 'rmv:install_rvm' do
-    software.install_curl
+  before 'rvm:install_rvm' do
+    software.install_curl if install_software_requirements
   end
 
   before 'deploy:setup' do
     deploy_user.configure
     tomcat.create_apps_directory
-    gems.add_github_public_key
+    gems.add_github_public_key if add_github_public_key
     gems.install_bundler_requirements
   end
 
@@ -116,6 +124,10 @@ Capistrano::Configuration.instance.load do
 
   before 'deploy:finalize_update' do
     deploy.create_symlink
+  end
+
+  after 'deploy' do
+    deploy.cleanup
   end
 
   #
@@ -250,7 +262,7 @@ Capistrano::Configuration.instance.load do
     end
 
     task :add_github_public_key do |t|
-      run "[[ -n $(grep '^github.com' ~/.ssh/known_hosts) ]] || ssh-keyscan github.com >> ~/.ssh/known_hosts"
+      run "[[ -n $(grep -q '^github.com' ~/.ssh/known_hosts) ]] || ssh-keyscan github.com >> ~/.ssh/known_hosts"
     end
 
     task :install_bundler_requirements do |t|

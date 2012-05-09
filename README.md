@@ -107,3 +107,11 @@ To set pause after tomcat shutdown add:
 ```ruby
 set :restart_pause, 3
 ```
+
+To skip installing curl on setup or to skip adding github public key:
+
+```ruby
+set :install_software_requirements, false
+set :add_github_public_key
+```
+
