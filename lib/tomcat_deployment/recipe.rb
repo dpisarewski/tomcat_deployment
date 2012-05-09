@@ -305,7 +305,7 @@ Capistrano::Configuration.instance.load do
 
   namespace :software do
     task :install_curl do
-      sudo "type curl >/dev/null 2>&1 || apt-get install curl"
+      sudo "bash -c 'type curl >/dev/null 2>&1 || apt-get install curl'"
     end
   end
 end
