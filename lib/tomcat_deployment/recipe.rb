@@ -238,7 +238,7 @@ Capistrano::Configuration.instance.load do
       db_config[stage]['database']
     end
     def db_user
-      db_config[stage]['user']
+      db_config[stage]['username']
     end
 
     task :copy_production_to_staging do |t|
