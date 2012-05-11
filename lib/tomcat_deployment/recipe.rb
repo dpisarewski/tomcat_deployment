@@ -146,6 +146,29 @@ Capistrano::Configuration.instance.load do
     deploy.cleanup
   end
 
+  def in_shell(shell)
+    shell = default_run_options[:shell]
+    default_run_options[:shell] = shell
+    yield
+    default_run_options[:shell] = shell
+  end
+
+  def without_pty
+    pty = default_run_options[:pty]
+    default_run_options[:pty] = false
+    yield
+    default_run_options[:pty] = pty
+  end
+
+  def sudo_without_pty(command, options = {})
+    sudo command, options do |channel, stream, data|
+      if data =~ /^#{Regexp.escape(sudo_prompt)}/
+        logger.info "#{channel[:host]} asked for password"
+        channel.send_data password
+      end
+    end
+  end
+
   #
   # simple interactions with the tomcat server
   #
@@ -153,22 +176,6 @@ Capistrano::Configuration.instance.load do
 
     unless exists? :restart_pause
       set :restart_pause, 3
-    end
-
-    def without_pty
-      pty = default_run_options[:pty]
-      default_run_options[:pty] = false
-      yield
-      default_run_options[:pty] = pty
-    end
-
-    def sudo_without_pty(command, options = {})
-      sudo command, options do |channel, stream, data|
-        if data =~ /^#{Regexp.escape(sudo_prompt)}/
-          logger.info "#{channel[:host]} asked for password"
-          channel.send_data password
-        end
-      end
     end
 
     desc "start tomcat"
@@ -334,7 +341,9 @@ Capistrano::Configuration.instance.load do
 
   namespace :software do
     task :install_curl do
-      sudo "bash -c 'type curl >/dev/null 2>&1 || type apt-get >/dev/null 2>&1 && apt-get install curl'"
+      in_shell("/bin/bash") do
+        sudo "bash -c 'type curl >/dev/null 2>&1 || type apt-get >/dev/null 2>&1 && apt-get install curl'"
+      end
     end
   end
 
