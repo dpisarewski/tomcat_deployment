@@ -147,10 +147,10 @@ Capistrano::Configuration.instance.load do
   end
 
   def in_shell(shell)
-    shell = default_run_options[:shell]
-    default_run_options[:shell] = shell
+    tmp = default_shell
+    set :default_shell, shell
     yield
-    default_run_options[:shell] = shell
+    set :default_shell, tmp
   end
 
   def without_pty
