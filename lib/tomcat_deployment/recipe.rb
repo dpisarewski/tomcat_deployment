@@ -86,10 +86,14 @@ Capistrano::Configuration.instance.load do
     set :skip_restart, false
   end
   unless exists? :tomcat_stop_cmd
-    set :tomcat_stop_cmd, "#{tomcat_home}/bin/shutdown.sh"
+    set :tomcat_stop_cmd do
+      "#{tomcat_home}/bin/shutdown.sh"
+    end
   end
   unless exists? :tomcat_start_cmd
-    set :tomcat_start_cmd, "#{tomcat_home}/bin/start.sh"
+    set :tomcat_start_cmd do
+      "#{tomcat_home}/bin/start.sh"
+    end
   end
 
   set :use_sudo, false
