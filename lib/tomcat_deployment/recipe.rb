@@ -127,12 +127,15 @@ Capistrano::Configuration.instance.load do
 
   #Link current release and remove unnecessary files
   after 'deploy:update_code' do
+    tomcat.stop unless skip_restart
+    tomcat.remove_old_application_directory
     sudo "chmod g+w #{webapps_directory}", :as => tomcat_user
     sudo "[ -f #{webapps_directory}/#{war} ] && chmod g+w #{webapps_directory}/#{war} || true"
     cmd = "ln -sf #{current_release}/#{war} #{webapps_directory}/#{war}"
     puts cmd
     run cmd
     run "rm -rf #{current_release}/log #{current_release}/public #{current_release}/tmp"
+    tomcat.start unless skip_restart
   end
 
   before 'deploy:finalize_update' do
@@ -141,12 +144,6 @@ Capistrano::Configuration.instance.load do
 
   after 'deploy' do
     deploy.cleanup
-  end
-
-  after 'deploy:update_code' do
-    tomcat.stop unless skip_restart
-    tomcat.remove_old_application_directory
-    tomcat.start unless skip_restart
   end
 
   #
