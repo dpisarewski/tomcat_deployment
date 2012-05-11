@@ -85,6 +85,12 @@ Capistrano::Configuration.instance.load do
   unless exists? :skip_restart
     set :skip_restart, false
   end
+  unless exists? :tomcat_stop_cmd
+    set :tomcat_stop_cmd, "#{tomcat_home}/bin/shutdown.sh"
+  end
+  unless exists? :tomcat_start_cmd
+    set :tomcat_start_cmd, "#{tomcat_home}/bin/start.sh"
+  end
 
   set :use_sudo, false
 
@@ -133,6 +139,12 @@ Capistrano::Configuration.instance.load do
     deploy.cleanup
   end
 
+  after 'deploy:update_code' do
+    tomcat.stop unless skip_restart
+    tomcat.remove_old_application_directory
+    tomcat.start unless skip_restart
+  end
+
   #
   # simple interactions with the tomcat server
   #
@@ -161,23 +173,33 @@ Capistrano::Configuration.instance.load do
     desc "start tomcat"
     task :start do
       without_pty do
-        sudo_without_pty "#{tomcat_home}/bin/startup.sh", :as => tomcat_user
+        sudo_without_pty tomcat_start_cmd, :as => tomcat_user
       end
     end
 
     desc "stop tomcat"
     task :stop do
       without_pty do
-        sudo_without_pty "#{tomcat_home}/bin/shutdown.sh", :as => tomcat_user
+        sudo_without_pty tomcat_stop_cmd, :as => tomcat_user
       end
-      sudo "pkill -f #{tomcat_process_name}" if exists? :tomcat_process_name
+      sleep restart_pause
+      tomcat.kill_webserver_process
+    end
+
+    task :kill_webserver_process do
+      without_pty do
+        sudo_without_pty "pkill -9 -f #{tomcat_process_name}; true", :as => tomcat_user if exists? :tomcat_process_name
+      end
     end
 
     desc "stop and start tomcat"
     task :restart do
       tomcat.stop
-      sleep restart_pause
       tomcat.start
+    end
+
+    task :remove_old_application_directory do
+      sudo "rm -rf #{webapps_directory}/#{application}", :as => tomcat_user
     end
 
     desc "tail :tomcat_home/logs/*.log and logs/catalina.out"
@@ -188,9 +210,8 @@ Capistrano::Configuration.instance.load do
   end
 
   namespace :deploy do
-    # restart tomcat
     task :restart do
-      tomcat.restart unless skip_restart
+      #do nothing here
     end
   end
 
