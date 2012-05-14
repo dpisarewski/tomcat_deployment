@@ -1,5 +1,3 @@
-require "active_support"
-
 class DeploymentUtils
   attr_accessor :host, :war_name, :upload_path, :catalina_home, :username, :destination, :sudo_user, :ssh, :password
 
