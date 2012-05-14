@@ -207,7 +207,7 @@ Capistrano::Configuration.instance.load do
     end
 
     task :remove_old_application_directory do
-      sudo "rm -rf #{webapps_directory}/#{application}", :as => tomcat_user
+      sudo "sh -c 'rm -rf #{webapps_directory}/#{application}'", :as => tomcat_user
     end
 
     desc "tail :tomcat_home/logs/*.log and logs/catalina.out"
