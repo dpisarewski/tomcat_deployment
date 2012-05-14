@@ -18,13 +18,13 @@ class DeploymentUtils
 
   def swap_files(files, &block)
     files.each do |filename1, filename2|
-      move_to_temp filename1 if File.exist? filename1
+      move_to_temp filename1 if File.exist? filename1 and File.exists? filename2
       FileUtils.move filename2, filename1 if File.exists? filename2
     end
     yield
   ensure
     files.each do |filename1, filename2|
-      FileUtils.move filename1, filename2 if File.exists? filename1
+      FileUtils.move filename1, filename2 if File.exists? filename1 and File.exist? "#{filename1}.tmp"
       restore_from_temp filename1  if File.exist? "#{filename1}.tmp"
     end
   end
