@@ -181,14 +181,14 @@ Capistrano::Configuration.instance.load do
     desc "start tomcat"
     task :start do
       without_pty do
-        sudo_without_pty tomcat_start_cmd, :as => tomcat_user
+        sudo_without_pty tomcat_start_cmd
       end
     end
 
     desc "stop tomcat"
     task :stop do
       without_pty do
-        sudo_without_pty tomcat_stop_cmd, :as => tomcat_user
+        sudo_without_pty tomcat_stop_cmd
       end
       sleep restart_pause
       tomcat.kill_webserver_process
