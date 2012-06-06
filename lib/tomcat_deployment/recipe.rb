@@ -161,10 +161,12 @@ Capistrano::Configuration.instance.load do
   end
 
   def sudo_without_pty(command, options = {})
-    sudo command, options do |channel, stream, data|
-      if data =~ /^#{Regexp.escape(sudo_prompt)}/
-        logger.info "#{channel[:host]} asked for password"
-        channel.send_data password
+    without_pty do
+      sudo command, options do |channel, stream, data|
+        if data =~ /^#{Regexp.escape(sudo_prompt)}/
+          logger.info "#{channel[:host]} asked for password"
+          channel.send_data password
+        end
       end
     end
   end
@@ -180,24 +182,18 @@ Capistrano::Configuration.instance.load do
 
     desc "start tomcat"
     task :start do
-      without_pty do
-        sudo_without_pty tomcat_start_cmd
-      end
+      sudo tomcat_start_cmd
     end
 
     desc "stop tomcat"
     task :stop do
-      without_pty do
-        sudo_without_pty tomcat_stop_cmd
-      end
+      sudo tomcat_stop_cmd
       sleep restart_pause
       tomcat.kill_webserver_process
     end
 
     task :kill_webserver_process do
-      without_pty do
-        sudo_without_pty "pkill -9 -f #{tomcat_process_name}; true", :as => tomcat_user if exists? :tomcat_process_name
-      end
+      sudo "pkill -9 -f #{tomcat_process_name}; true", :as => tomcat_user if exists? :tomcat_process_name
     end
 
     desc "stop and start tomcat"
