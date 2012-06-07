@@ -111,6 +111,11 @@ Capistrano::Configuration.instance.load do
 
   #Compile war file
   before "deploy" do
+    if File.exists? "public/assets"
+      logger.info "Assets already compiled. Skipping precompiling."
+    else
+      system "rake assets:precompile"
+    end
     deployment = DeploymentUtils.new stage
     deployment.compile
   end
