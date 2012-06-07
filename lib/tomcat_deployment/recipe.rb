@@ -114,7 +114,7 @@ Capistrano::Configuration.instance.load do
     if File.exists? "public/assets"
       logger.info "Assets already compiled. Skipping precompiling."
     else
-      system "rake assets:precompile"
+      system "rake assets:precompile RAILS_ENV=#{stage}"
     end
     deployment = DeploymentUtils.new stage
     deployment.compile
