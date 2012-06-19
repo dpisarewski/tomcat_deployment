@@ -1,17 +1,24 @@
 class DeploymentUtils
-  attr_accessor :host, :war_name, :upload_path, :catalina_home, :username, :destination, :sudo_user, :ssh, :password
+  attr_accessor :host, :war_name, :upload_path, :catalina_home, :username, :stage, :sudo_user, :ssh, :password, :compile_assets, :db_sample_file
 
-  def initialize(destination)
-    self.destination  = destination
+  DEFAULT_DB_SAMPLE_FILE = "database_original.yml"
+
+  def initialize(stage)
+    self.stage          = stage
+    self.db_sample_file = DEFAULT_DB_SAMPLE_FILE
     load_configruration
   end
 
+  def temp_file_name(file_name)
+    "#{file_name}.tmp"
+  end
+
   def move_to_temp(file_name)
-    FileUtils.move(file_name, "#{file_name}.tmp")
+    FileUtils.move(file_name, temp_file_name(file_name))
   end
 
   def restore_from_temp(file_name)
-    FileUtils.move("#{file_name}.tmp", file_name)
+    FileUtils.move(temp_file_name(file_name), file_name)
   end
 
   def swap_files(files, &block)
@@ -22,25 +29,26 @@ class DeploymentUtils
     yield
   ensure
     files.each do |filename1, filename2|
-      FileUtils.move filename1, filename2 if File.exists? filename1 and File.exist? "#{filename1}.tmp"
-      restore_from_temp filename1  if File.exist? "#{filename1}.tmp"
+      FileUtils.move filename1, filename2 if File.exists? filename1 and File.exist? temp_file_name(filename1)
+      restore_from_temp filename1  if File.exist? temp_file_name(filename1)
     end
   end
 
   def compile
     files_to_swap = {
-      File.join("config", "database.yml") => File.join("config", "database_original.yml"),
-      File.join("config", "deploy.properties") => File.join("config", "deploy_#{destination}.properties")
+      File.join("config", "database.yml")       => File.join("config", db_sample_file),
+      File.join("config", "deploy.properties")  => File.join("config", "deploy_#{stage}.properties")
     }
 
     swap_files files_to_swap do
-      system "bundle exec warble RAILS_ENV=#{destination}"
+      system "rake assets:precompile RAILS_ENV=#{stage}" if compile_assets
+      system "bundle exec warble RAILS_ENV=#{stage}"
     end
   end
 
   def load_configruration(config_file = "config/deploy.yml")
     if File.exists?(config_file)
-      config = YAML::load(File.open(config_file))[destination].symbolize_keys
+      config = YAML::load(File.open(config_file))[stage].symbolize_keys
       self.host, self.war_name, self.catalina_home, self.username, self.sudo_user, self.upload_path, self.password =
         config.values_at(:host, :war_name, :catalina_home, :username, :sudo_user, :upload_path, :password)
     end
