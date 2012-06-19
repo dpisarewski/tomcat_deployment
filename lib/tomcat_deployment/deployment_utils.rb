@@ -41,7 +41,11 @@ class DeploymentUtils
     }
 
     swap_files files_to_swap do
-      system "rake assets:precompile RAILS_ENV=#{stage}" if compile_assets
+      if compile_assets
+        puts "Ensure if #{stage} database exists"
+        system "rake db:create RAILS_ENV=#{stage}"
+        system "rake assets:precompile RAILS_ENV=#{stage}"
+      end
       system "bundle exec warble RAILS_ENV=#{stage}"
     end
   end
