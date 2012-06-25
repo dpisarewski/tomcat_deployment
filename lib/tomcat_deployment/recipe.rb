@@ -15,7 +15,7 @@ Capistrano::Configuration.instance.load do
   #RVM support
   if not exists? :rvm or rvm
     unless exists? :rvm_ruby_string
-      set :rvm_ruby_string, "jruby-1.6.5@#{application}"
+      set :rvm_ruby_string, "jruby-1.6.7@#{application}"
     end
     set :rvm_install_type, :stable
     before 'deploy:setup', 'rvm:install_rvm'
@@ -115,7 +115,9 @@ Capistrano::Configuration.instance.load do
     if File.exists? "public/assets"
       logger.info "Assets already compiled. Skipping precompiling."
     else
-      deployment.compile_assets = true
+      puts "Ensure if #{stage} database exists"
+      system "rake db:create RAILS_ENV=#{stage}"
+      system "rake assets:precompile RAILS_ENV=#{stage}"
     end
     deployment.compile
   end

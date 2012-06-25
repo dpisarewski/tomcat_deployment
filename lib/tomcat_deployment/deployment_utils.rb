@@ -1,5 +1,5 @@
 class DeploymentUtils
-  attr_accessor :host, :war_name, :upload_path, :catalina_home, :username, :stage, :sudo_user, :ssh, :password, :compile_assets, :db_sample_file
+  attr_accessor :host, :war_name, :upload_path, :catalina_home, :username, :stage, :sudo_user, :ssh, :password, :db_sample_file
 
   DEFAULT_DB_SAMPLE_FILE = "database_original.yml"
 
@@ -41,11 +41,6 @@ class DeploymentUtils
     }
 
     swap_files files_to_swap do
-      if compile_assets
-        puts "Ensure if #{stage} database exists"
-        system "rake db:create RAILS_ENV=#{stage}"
-        system "rake assets:precompile RAILS_ENV=#{stage}"
-      end
       system "bundle exec warble RAILS_ENV=#{stage}"
     end
   end
