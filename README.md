@@ -14,7 +14,7 @@ Add this line to your application's Gemfile:
 
 ```ruby
 group :development do
-    gem 'tomcat_deployment', :git => "git@github.com:arvatoSystemsNA/tomcat_deployment.git"
+    gem 'tomcat_deployment', :git => "git://github.com/dpisarewski/tomcat_deployment.git"
 end
 ```
 
